@@ -1,0 +1,66 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.1.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
+	id 'com.google.cloud.tools.jib' version '2.6.0'
+}
+
+group = 'com.in28minutes.microservice'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+jib.to.image = 'tyenagan/currency-exchange'
+
+jib
+{
+from {
+    image = 'openjdk:11.0.8-jre'    
+  }
+  to {
+    image = '<image>'
+     auth {
+      username = '<user>' // Defined in 'gradle.properties'.
+      password = '<pwd>'
+    }
+}
+}
+
+
+bootJar { manifest { attributes 'Start-Class': 'com.in28minutes.microservice.currencyexchangeservice.CurrencyExchangeServiceApplication' } }
+
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "Hoxton.SR6")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtime 'com.h2database:h2'
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	implementation('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'){
+	  exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-xml'	
+	}
+	implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    implementation 'org.springframework.cloud:spring-cloud-starter-zipkin'
+	implementation 'org.springframework.amqp:spring-rabbit'
+	
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
